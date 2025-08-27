@@ -4,7 +4,7 @@ using WebApi.Models;
 
 namespace WebApi.Services;
 
-public class CustomerService(ICustomerRepository customerRepository, ICustomerInformationRepository customerInformationRepository)
+public class CustomerService(ICustomerRepository customerRepository, ICustomerInformationRepository customerInformationRepository) : ICustomerService
 {
     private readonly ICustomerRepository _customerRepository = customerRepository;
     private readonly ICustomerInformationRepository _customerInformationRepository = customerInformationRepository;
@@ -12,7 +12,7 @@ public class CustomerService(ICustomerRepository customerRepository, ICustomerIn
     public async Task<CustomerResponseResult<Customer>> CreateCustomerAsync(CustomerRequest customer)
     {
         if (customer == null)
-            return new CustomerResponseResult
+            return new CustomerResponseResult<Customer>
             {
                 Succeeded = false,
                 StatusCode = 400,
@@ -21,7 +21,7 @@ public class CustomerService(ICustomerRepository customerRepository, ICustomerIn
 
         var exists = await _customerRepository.GetAsync(c => c.CustomerName == customer.CustomerName);
         if (exists != null)
-            return new CustomerResponseResult
+            return new CustomerResponseResult<Customer>
             {
                 Succeeded = false,
                 StatusCode = 409,
@@ -50,7 +50,7 @@ public class CustomerService(ICustomerRepository customerRepository, ICustomerIn
 
                     if (!result)
                     {
-                        return new CustomerResponseResult
+                        return new CustomerResponseResult<Customer>
                         {
                             Succeeded = true,
                             StatusCode = 201,
@@ -58,7 +58,7 @@ public class CustomerService(ICustomerRepository customerRepository, ICustomerIn
                         };
                     }
 
-                    return new CustomerResponseResult
+                    return new CustomerResponseResult<Customer>
                     {
                         Succeeded = true,
                         StatusCode = 201
@@ -69,7 +69,7 @@ public class CustomerService(ICustomerRepository customerRepository, ICustomerIn
         }
         catch (Exception ex)
         {
-            return new CustomerResponseResult
+            return new CustomerResponseResult<Customer>
             {
                 Succeeded = false,
                 StatusCode = 500,
@@ -77,7 +77,7 @@ public class CustomerService(ICustomerRepository customerRepository, ICustomerIn
             };
         }
 
-        return new CustomerResponseResult
+        return new CustomerResponseResult<Customer>
         {
             Succeeded = false,
             StatusCode = 500,
@@ -88,7 +88,7 @@ public class CustomerService(ICustomerRepository customerRepository, ICustomerIn
     public async Task<CustomerResponseResult<Customer>> GetCustomerByIdAsync(string customerId)
     {
         if (string.IsNullOrWhiteSpace(customerId))
-            return new CustomerResponseResult
+            return new CustomerResponseResult<Customer>
             {
                 Succeeded = false,
                 StatusCode = 400,
@@ -98,7 +98,7 @@ public class CustomerService(ICustomerRepository customerRepository, ICustomerIn
         {
             var customerEntity = await _customerRepository.GetAsync(c => c.Id == customerId);
             if (customerEntity == null)
-                return new CustomerResponseResult
+                return new CustomerResponseResult<Customer>
                 {
                     Succeeded = false,
                     StatusCode = 404,
@@ -112,16 +112,16 @@ public class CustomerService(ICustomerRepository customerRepository, ICustomerIn
                 Email = customerInfoEntity!.Email,
                 PhoneNumber = customerInfoEntity?.PhoneNumber
             };
-            return new CustomerResponseResult
+            return new CustomerResponseResult<Customer>
             {
                 Succeeded = true,
                 StatusCode = 200,
-                Customer = customer
+                Result = customer
             };
         }
         catch (Exception ex)
         {
-            return new CustomerResponseResult
+            return new CustomerResponseResult<Customer>
             {
                 Succeeded = false,
                 StatusCode = 500,
@@ -129,7 +129,7 @@ public class CustomerService(ICustomerRepository customerRepository, ICustomerIn
             };
         }
     }
-    
+
     public async Task<CustomerResponseResult<IEnumerable<Customer>>> GetAllCustomersAsync()
     {
         try
