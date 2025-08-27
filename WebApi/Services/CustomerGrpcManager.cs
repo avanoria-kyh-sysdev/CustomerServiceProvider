@@ -17,6 +17,11 @@ public class CustomerGrpcManager(ICustomerService customerService) : CustomerGrp
             throw new RpcException(new Status(StatusCode.NotFound, response.Error ?? "Customer not found"));
         }
 
+        if (string.IsNullOrEmpty(response.Result.PhoneNumber))
+        {
+            response.Result.PhoneNumber = "N/A";
+        }
+
         return new GetCustomerByIdResponse
         {
             Id = response.Result.Id,
