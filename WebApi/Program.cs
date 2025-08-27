@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using WebApi.Data.Contexts;
 using WebApi.Data.Repositories;
+using WebApi.Grpc;
 using WebApi.Interfaces;
 using WebApi.Services;
 
@@ -10,6 +11,8 @@ builder.Services.AddDbContext<DataContext>(x => x.UseSqlServer(builder.Configura
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ICustomerInformationRepository, CustomerInformationRepository>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+
+builder.Services.AddGrpc();
 
 builder.Services.AddControllers();
 
@@ -24,5 +27,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapGrpcService<CustomerGrpcManager>();
 
 app.Run();
